@@ -11,16 +11,16 @@ import com.example.legacysoap.domain.UpdateQuantityRequest;
 import com.example.legacysoap.domain.UpdateQuantityResponse;
 import com.example.legacysoap.domain.ClearCartRequest;
 import com.example.legacysoap.domain.ClearCartResponse;
-import com.example.legacysoap.domain.CheckoutRequest;
-import com.example.legacysoap.domain.CheckoutResponse;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+import org.springframework.context.annotation.Profile;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Profile("!test")
 @Endpoint
 public class ShoppingCartEndpoint {
     private static final String NAMESPACE_URI = "http://example.com/shoppingcart";
