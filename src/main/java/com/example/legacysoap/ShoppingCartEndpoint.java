@@ -1,4 +1,3 @@
-// src/main/java/com/example/legacysoap/ShoppingCartEndpoint.java
 package com.example.legacysoap;
 
 import com.example.legacysoap.domain.AddItemRequest;
@@ -13,23 +12,26 @@ import com.example.legacysoap.domain.ClearCartRequest;
 import com.example.legacysoap.domain.ClearCartResponse;
 import com.example.legacysoap.domain.CheckoutRequest;
 import com.example.legacysoap.domain.CheckoutResponse;
+import com.example.legacysoap.service.ShoppingCartService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Endpoint
 public class ShoppingCartEndpoint {
     private static final String NAMESPACE_URI = "http://example.com/shoppingcart";
-    private Map<String, Integer> cart = new HashMap<>(); // In-memory cart
+
+    @Autowired
+    private ShoppingCartService shoppingCartService;
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "AddItemRequest")
     @ResponsePayload
     public AddItemResponse addItem(@RequestPayload AddItemRequest request) {
-        cart.put(request.getProductId(), cart.getOrDefault(request.getProductId(), 0) + request.getQuantity());
+        shoppingCartService.addItem(request.getProductId(), request.getQuantity());
         AddItemResponse response = new AddItemResponse();
         response.setSuccess(true);
         return response;
@@ -39,6 +41,7 @@ public class ShoppingCartEndpoint {
     @ResponsePayload
     public GetCartResponse getCart(@RequestPayload GetCartRequest request) {
         GetCartResponse response = new GetCartResponse();
+        Map<String, Integer> cart = shoppingCartService.getCart();
         cart.forEach((productId, quantity) -> {
             GetCartResponse.CartItems item = new GetCartResponse.CartItems();
             item.setProductId(productId);
@@ -51,7 +54,7 @@ public class ShoppingCartEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "RemoveItemRequest")
     @ResponsePayload
     public RemoveItemResponse removeItem(@RequestPayload RemoveItemRequest request) {
-        cart.remove(request.getProductId());
+        shoppingCartService.removeItem(request.getProductId());
         RemoveItemResponse response = new RemoveItemResponse();
         response.setSuccess(true);
         return response;
@@ -60,21 +63,16 @@ public class ShoppingCartEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "UpdateQuantityRequest")
     @ResponsePayload
     public UpdateQuantityResponse updateQuantity(@RequestPayload UpdateQuantityRequest request) {
-        if (cart.containsKey(request.getProductId())) {
-            cart.put(request.getProductId(), request.getQuantity());
-            UpdateQuantityResponse response = new UpdateQuantityResponse();
-            response.setSuccess(true);
-            return response;
-        }
+        boolean success = shoppingCartService.updateQuantity(request.getProductId(), request.getQuantity());
         UpdateQuantityResponse response = new UpdateQuantityResponse();
-        response.setSuccess(false);
+        response.setSuccess(success);
         return response;
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ClearCartRequest")
     @ResponsePayload
     public ClearCartResponse clearCart(@RequestPayload ClearCartRequest request) {
-        cart.clear();
+        shoppingCartService.clearCart();
         ClearCartResponse response = new ClearCartResponse();
         response.setSuccess(true);
         return response;
