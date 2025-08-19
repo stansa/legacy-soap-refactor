@@ -10,12 +10,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version> <!-- Latest 2.x as of 2025 -->
+        <version>3.2.0</version>
         <relativePath/>
     </parent>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
@@ -41,6 +41,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- JAXB for Spring Boot 3.x -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -50,21 +59,22 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>2.5.0</version> <!-- Compatible with Java 8 -->
+                <groupId>org.jvnet.jaxb</groupId>
+                <artifactId>jaxb-maven-plugin</artifactId>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>xjc</goal>
+                            <goal>generate</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <sources>
-                        <source>src/main/resources/schema.xsd</source>
-                    </sources>
-                    <packageName>com.example.legacysoap.domain</packageName>
+                    <generatePackage>com.example.legacysoap.domain</generatePackage>
+                    <schemaDirectory>src/main/resources</schemaDirectory>
+                    <schemaIncludes>
+                        <include>schema.xsd</include>
+                    </schemaIncludes>
                 </configuration>
             </plugin>
         </plugins>
